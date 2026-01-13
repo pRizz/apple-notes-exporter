@@ -2,14 +2,17 @@
 -- Creates a mirrored directory tree, exports each note as .html
 --
 -- Usage:
+--   # Show usage instructions:
+--   osascript export_notes.applescript
+--
 --   # List all available top-level folders:
---   osascript export_notes_recursive.applescript
+--   osascript export_notes.applescript list
 --
 --   # Export a folder (searches all accounts and all folder levels, finds first match):
---   osascript export_notes_recursive.applescript "Folder Name" "/path/to/output"
+--   osascript export_notes.applescript export "Folder Name" "/path/to/output"
 --
 --   # Export a folder from a specific account (recommended for duplicate folder names):
---   osascript export_notes_recursive.applescript "AccountName:FolderName" "/path/to/output"
+--   osascript export_notes.applescript export "AccountName:FolderName" "/path/to/output"
 --
 -- Notes:
 --   - Folder search: Searches recursively at ALL levels (not just top-level) to find the folder
@@ -20,30 +23,47 @@
 --   - Requires Automation permissions for Notes app (System Settings > Privacy & Security) depending on which app invoked the script, like Terminal or Script Editor
 
 on run argv
-  -- Check permissions first
-  if not (my check_notes_permissions()) then
-    log ""
-    log "⚠️  Notes Automation permissions may not be properly configured."
-    log "   Please grant permissions in:"
-    log "   System Settings > Privacy & Security > Automation"
-    log "   Ensure Terminal (or osascript) has permission to control Notes"
-    log ""
-  end if
-
-  if (count of argv) < 2 then
-    -- If no parameters, just print available folders and exit
-    my print_all_top_level_folders()
-    log ""
-    log "To export a folder, use:"
-    log "  osascript export_notes_recursive.applescript \"Folder Name\" \"/path/to/output\""
-    log ""
-    log "If you have duplicate folder names across accounts, specify the account:"
-    log "  osascript export_notes_recursive.applescript \"AccountName:FolderName\" \"/path/to/output\""
+  -- No arguments: show usage
+  if (count of argv) is 0 then
+    my print_usage()
     return
   end if
 
-  set topFolderSpec to item 1 of argv
-  set outRootPosix to item 2 of argv
+  set subcommand to item 1 of argv
+
+  -- Handle "list" subcommand
+  if subcommand is "list" then
+    -- Check permissions first
+    if not (my check_notes_permissions()) then
+      my print_permissions_warning()
+    end if
+    my print_all_top_level_folders()
+    return
+  end if
+
+  -- Handle "export" subcommand
+  if subcommand is "export" then
+    if (count of argv) < 3 then
+      log "Error: 'export' requires a folder name and output directory."
+      log ""
+      my print_usage()
+      return
+    end if
+
+    -- Check permissions first
+    if not (my check_notes_permissions()) then
+      my print_permissions_warning()
+    end if
+
+    set topFolderSpec to item 2 of argv
+    set outRootPosix to item 3 of argv
+  else
+    -- Unknown subcommand
+    log "Error: Unknown subcommand '" & subcommand & "'"
+    log ""
+    my print_usage()
+    return
+  end if
 
   -- Check if folder spec includes account name (format: "AccountName:FolderName")
   set maybeAccountName to missing value
@@ -60,9 +80,6 @@ on run argv
   end if
 
   my ensure_dir_posix(outRootPosix)
-
-  -- Print all available top-level folders
-  my print_all_top_level_folders()
 
   tell application "Notes"
     set topFolder to missing value
@@ -87,6 +104,37 @@ on run argv
     my export_folder_recursive(topFolder, topDirPosix)
   end tell
 end run
+
+-- ===== Usage and help =====
+
+on print_usage()
+  log "Apple Notes Exporter"
+  log ""
+  log "Usage:"
+  log "  osascript export_notes.applescript <command> [options]"
+  log ""
+  log "Commands:"
+  log "  list                                  List all available top-level folders"
+  log "  export <folder> <output_dir>          Export a folder recursively to HTML files"
+  log ""
+  log "Examples:"
+  log "  osascript export_notes.applescript list"
+  log "  osascript export_notes.applescript export \"My Notes\" \"./output\""
+  log "  osascript export_notes.applescript export \"iCloud:Work\" \"./output\""
+  log ""
+  log "Notes:"
+  log "  - Use \"AccountName:FolderName\" format if folder name exists in multiple accounts"
+  log "  - Requires Automation permissions for Notes app"
+end print_usage
+
+on print_permissions_warning()
+  log ""
+  log "⚠️  Notes Automation permissions may not be properly configured."
+  log "   Please grant permissions in:"
+  log "   System Settings > Privacy & Security > Automation"
+  log "   Ensure Terminal (or osascript) has permission to control Notes"
+  log ""
+end print_permissions_warning
 
 -- ===== Core recursion =====
 

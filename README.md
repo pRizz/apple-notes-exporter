@@ -27,12 +27,20 @@ Export Apple Notes to HTML files with preserved folder structure. Recursively ex
 
 ## Usage
 
+### Show Help
+
+To see usage instructions:
+
+```bash
+osascript scripts/export_notes.applescript
+```
+
 ### List Available Folders
 
 To see all available top-level folders across all accounts:
 
 ```bash
-osascript scripts/export_notes_recursive.applescript
+osascript scripts/export_notes.applescript list
 ```
 
 This will display folders in the format: `AccountName > FolderName`
@@ -42,13 +50,13 @@ This will display folders in the format: `AccountName > FolderName`
 Basic usage (searches all accounts, finds first match):
 
 ```bash
-osascript scripts/export_notes_recursive.applescript "Folder Name" "/path/to/output"
+osascript scripts/export_notes.applescript export "Folder Name" "/path/to/output"
 ```
 
 Example:
 
 ```bash
-osascript scripts/export_notes_recursive.applescript "My Journal" "./output"
+osascript scripts/export_notes.applescript export "My Journal" "./output"
 ```
 
 ### Export from Specific Account
@@ -56,17 +64,17 @@ osascript scripts/export_notes_recursive.applescript "My Journal" "./output"
 If you have duplicate folder names across accounts, specify the account:
 
 ```bash
-osascript scripts/export_notes_recursive.applescript "AccountName:FolderName" "/path/to/output"
+osascript scripts/export_notes.applescript export "AccountName:FolderName" "/path/to/output"
 ```
 
 Examples:
 
 ```bash
 # Export from iCloud account
-osascript scripts/export_notes_recursive.applescript "iCloud:My Journal" "./output"
+osascript scripts/export_notes.applescript export "iCloud:My Journal" "./output"
 
 # Export from Google account
-osascript scripts/export_notes_recursive.applescript "Google:Work Notes" "./output"
+osascript scripts/export_notes.applescript export "Google:Work Notes" "./output"
 ```
 
 ## How It Works
@@ -106,7 +114,7 @@ output/
 
 ### Folder Not Found
 
-- Use the list command (no arguments) to see all available folders with their exact names
+- Use the `list` command to see all available folders with their exact names
 - Folder names are case-sensitive
 - If duplicates exist, use the `AccountName:FolderName` format
 
