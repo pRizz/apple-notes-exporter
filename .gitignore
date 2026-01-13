@@ -1,0 +1,5 @@
+# compiled applescripts
+*.scpt
+
+output
+.DS_Store
