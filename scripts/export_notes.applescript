@@ -6,7 +6,7 @@
 --   osascript export_notes.applescript
 --
 --   # List all available top-level folders:
---   osascript export_notes.applescript list
+--   osascript export_notes.applescript list    (or "ls")
 --
 --   # Export a folder (searches all accounts and all folder levels, finds first match):
 --   osascript export_notes.applescript export "Folder Name" "/path/to/output"
@@ -31,8 +31,8 @@ on run argv
 
   set subcommand to item 1 of argv
 
-  -- Handle "list" subcommand
-  if subcommand is "list" then
+  -- Handle "list" subcommand (also accepts "ls" as alias)
+  if subcommand is "list" or subcommand is "ls" then
     -- Check permissions first
     if not (my check_notes_permissions()) then
       my print_permissions_warning()
@@ -114,7 +114,7 @@ on print_usage()
   log "  osascript export_notes.applescript <command> [options]"
   log ""
   log "Commands:"
-  log "  list                                  List all available top-level folders"
+  log "  list, ls                              List all available top-level folders"
   log "  export <folder> <output_dir>          Export a folder recursively to HTML files"
   log ""
   log "Examples:"

@@ -40,7 +40,7 @@ osascript scripts/export_notes.applescript
 To see all available top-level folders across all accounts:
 
 ```bash
-osascript scripts/export_notes.applescript list
+osascript scripts/export_notes.applescript list   # or "ls"
 ```
 
 This will display folders in the format: `AccountName > FolderName`
@@ -114,7 +114,7 @@ output/
 
 ### Folder Not Found
 
-- Use the `list` command to see all available folders with their exact names
+- Use the `list` (or `ls`) command to see all available folders with their exact names
 - Folder names are case-sensitive
 - If duplicates exist, use the `AccountName:FolderName` format
 
